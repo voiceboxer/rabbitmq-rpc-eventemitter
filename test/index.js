@@ -3,8 +3,9 @@ var test = require('tape');
 var afterAll = require('after-all');
 var deepEqual = require('deep-equal');
 var almostEqual = require('almost-equal');
+var rabbitmq = require('rabbitmq-eventemitter');
 
-var queue = require('../');
+var rpc = require('../');
 
 var expectsOnce = function() {
   var args = arguments;
@@ -23,15 +24,15 @@ var expectsOnce = function() {
 };
 
 var createQueue = function() {
-  var queueOptions = {
-    durable: false,
-    autoDelete: true
-  };
-
-  return queue('amqp://localhost', {
+  var queue = rabbitmq('amqp://localhost', {
     namespace: 'test-namespace',
-    queueOptions: queueOptions
+    queueOptions: {
+      durable: false,
+      autoDelete: true
+    }
   });
+
+  return rpc(queue);
 };
 
 test('rpc call', function(t) {

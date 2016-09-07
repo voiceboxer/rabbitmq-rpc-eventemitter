@@ -4,7 +4,6 @@ var os = require('os');
 var extend = require('xtend');
 var rs = require('randomstring');
 var once = require('once');
-var rabbitmq = require('rabbitmq-eventemitter');
 var thunky = require('thunky');
 
 var TIMEOUT = 60 * 1000;
@@ -13,8 +12,8 @@ var callbackQueueName = function() {
   return os.hostname() + '.' + process.pid + '.' + rs.generate(8);
 };
 
-var Queue = function(url, options) {
-  if(!(this instanceof Queue)) return new Queue(url, options);
+var Queue = function(queue) {
+  if(!(this instanceof Queue)) return new Queue(queue);
   events.EventEmitter.call(this);
 
   var self = this;
@@ -25,7 +24,7 @@ var Queue = function(url, options) {
   this._callbackQueueName = callbackQueueName();
   this._onerror = onerror;
   this._requests = {};
-  this._queue = (url instanceof rabbitmq) ? url : rabbitmq(url, options);
+  this._queue = queue;
 
   this._queue.on('error', onerror);
 
