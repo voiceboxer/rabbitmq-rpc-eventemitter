@@ -9,6 +9,10 @@ var thunky = require('thunky');
 
 var TIMEOUT = 60 * 1000;
 
+var callbackQueueName = function() {
+  return os.hostname() + '.' + process.pid + '.' + rs.generate(8);
+};
+
 var Queue = function(url, options) {
   if(!(this instanceof Queue)) return new Queue(url, options);
   events.EventEmitter.call(this);
@@ -18,7 +22,7 @@ var Queue = function(url, options) {
     self.emit('error', err);
   });
 
-  this._callbackQueueName = this._callbackQueueName();
+  this._callbackQueueName = callbackQueueName();
   this._onerror = onerror;
   this._requests = {};
   this._queue = (url instanceof rabbitmq) ? url : rabbitmq(url, options);
@@ -132,10 +136,6 @@ Queue.prototype._resolve = function(id, err, data) {
     if(err) callback(err);
     else callback(null, data);
   }
-};
-
-Queue.prototype._callbackQueueName = function() {
-  return os.hostname() + '.' + process.pid + '.' + rs.generate(8);
 };
 
 module.exports = Queue;
