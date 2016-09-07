@@ -21,7 +21,7 @@ var Queue = function(url, options) {
   this._callbackQueueName = this._callbackQueueName();
   this._onerror = onerror;
   this._requests = {};
-  this._queue = rabbitmq(url, options);
+  this._queue = (url instanceof rabbitmq) ? url : rabbitmq(url, options);
 
   this._queue.on('error', onerror);
 
@@ -49,10 +49,15 @@ Queue.prototype.push = function(pattern, data, options, callback) {
     callback = options;
     options = null;
   }
+  if(!callback && typeof data === 'function') {
+    callback = data;
+    data = null;
+  }
 
   var self = this;
   var correlationId = rs.generate(32);
 
+  data = data || {};
   options = options || {};
   callback = callback || function(err) {
     if(err) self._onerror(err);
