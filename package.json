@@ -1,6 +1,6 @@
 {
   "name": "rabbitmq-rpc-eventemitter",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Simplified rabbitmq RPC",
   "main": "index.js",
   "scripts": {
