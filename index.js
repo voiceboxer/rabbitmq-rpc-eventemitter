@@ -106,6 +106,8 @@ Queue.prototype.pull = function(pattern, listener, callback) {
           message: err.message,
           stack: err.stack
         };
+      } else if(!data) {
+        data = {};
       }
 
       self._queue.push(replyTo, data, {

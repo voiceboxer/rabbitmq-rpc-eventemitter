@@ -91,7 +91,35 @@ test('rpc call without data', function(t) {
   q.push('test-pattern', responseHandler);
 });
 
-test('rpc error call', function(t) {
+test('rpc response without data', function(t) {
+  var q = createQueue();
+
+  t.plan(5);
+
+  var responseHandler = function(err, message) {
+    t.error(err);
+    t.deepEqual(message, {});
+
+    process.nextTick(function() {
+      q.close(function(err) {
+        t.error(err);
+      });
+    });
+  };
+
+  var requestHandler = function(message, callback) {
+    t.deepEqual(message, { ok: 1 });
+    callback();
+  };
+
+  q.pull('test-pattern', requestHandler, function(err) {
+    t.error(err);
+  });
+
+  q.push('test-pattern', { ok: 1 }, responseHandler);
+});
+
+test('rpc error response', function(t) {
   var q = createQueue();
 
   t.plan(7);
