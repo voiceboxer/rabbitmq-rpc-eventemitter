@@ -1,6 +1,6 @@
 # rabbitmq-rpc-eventemitter
 
-Simplified rabbitmq RPC using [rabbitmq-eventemitter](https://www.npmjs.com/package/rabbitmq-eventemitter).
+Simplified rabbitmq RPC using [rabbitmq-eventemitter](https://www.npmjs.com/package/rabbitmq-eventemitter) version `1.3.1` and above.
 
 	npm install rabbitmq-rpc-eventemitter
 

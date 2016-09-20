@@ -8,8 +8,18 @@ var thunky = require('thunky');
 
 var TIMEOUT = 60 * 1000;
 
-var callbackQueueName = function() {
-  return os.hostname() + '.' + process.pid + '.' + rs.generate(8);
+var callbackQueuePattern = function() {
+  return rs.generate(16) + '.callback';
+};
+
+var queueOptions = function() {
+  return {
+    queueOptions: {
+      namespace: 'rpc',
+      durable: false,
+      autoDelete: true
+    }
+  };
 };
 
 var Queue = function(queue) {
@@ -21,7 +31,7 @@ var Queue = function(queue) {
     self.emit('error', err);
   });
 
-  this._callbackQueueName = callbackQueueName();
+  this._callbackQueuePattern = callbackQueuePattern();
   this._onerror = onerror;
   this._requests = {};
   this._queue = queue;
@@ -29,7 +39,7 @@ var Queue = function(queue) {
   this._queue.on('error', onerror);
 
   this._ensureCallback = thunky(function(callback) {
-    self._queue.pull(self._callbackQueueName, function(message, options, cb) {
+    self._queue.pull(self._callbackQueuePattern, function(message, options, cb) {
       var correlationId = options.properties.correlationId;
       var err = null;
 
@@ -41,7 +51,7 @@ var Queue = function(queue) {
 
       self._resolve(correlationId, err, message);
       cb();
-    }, callback);
+    }, queueOptions(), callback);
   });
 };
 
@@ -67,7 +77,7 @@ Queue.prototype.push = function(pattern, data, options, callback) {
   };
 
   options = extend({
-    replyTo: this._callbackQueueName,
+    replyTo: this._callbackQueuePattern,
     correlationId: correlationId
   }, options);
 
@@ -117,7 +127,7 @@ Queue.prototype.pull = function(pattern, listener, callback) {
 
     if(listener.length <= 2) listener(message, onresponse);
     else listener(message, options, onresponse);
-  }, callback);
+  }, queueOptions(), callback);
 };
 
 Queue.prototype.close = function(callback) {
